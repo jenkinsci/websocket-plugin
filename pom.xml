@@ -8,7 +8,7 @@
 
   <groupId>org.codefirst.jenkins.wsnotifier</groupId>
   <artifactId>wsnotifier</artifactId>
-  <version>1.0</version>
+  <version>1.0-SNAPSHOT</version>
   <name>Jenkins Websocket Notifier</name>
   <packaging>hpi</packaging>
 
@@ -50,4 +50,11 @@
       <email>mzp@ocaml.jp</email>
     </developer>
  </developers>
+
+  <distributionManagement>
+    <repository>
+      <id>maven.jenkins-ci.org</id>
+      <url>http://maven.jenkins-ci.org:8081/content/repositories/releases/</url>
+    </repository>
+  </distributionManagement>
 </project>
