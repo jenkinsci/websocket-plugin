@@ -42,4 +42,12 @@
   </scm>
 
   <url>https://wiki.jenkins-ci.org/display/JENKINS/Websocket+Plugin</url>
+
+  <developers>
+    <developer>
+      <id>mzp</id>
+      <name>MIZUNO Hiroki</name>
+      <email>mzp@ocaml.jp</email>
+    </developer>
+ </developers>
 </project>
