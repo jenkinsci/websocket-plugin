@@ -34,4 +34,12 @@
       <version>0.1.13</version>
     </dependency>
   </dependencies>
+
+  <scm>
+    <connection>scm:git:ssh://github.com/jenkinsci/MYPLLUGINNAME.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/jenkinsci/websocket-pluginNAME.git</developerConnection>
+    <url>https://github.com/jenkinsci/websocket-pluginNAME</url>
+  </scm>
+
+  <url>https://wiki.jenkins-ci.org/display/JENKINS/Websocket+Plugin</url>
 </project>
