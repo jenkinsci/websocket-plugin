@@ -1,17 +1,35 @@
 <html>
-  <body bgcolor="red" id="bg">
+  <head>
+    <title>Jenkins XFD</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+    <link rel="apple-touch-icon"
+         href="http://agentdero.cachefly.net/continuousblog/newlogo/headshot.png" />
+    <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=no">  
+    <meta name="apple-mobile-web-app-capable" content="yes"/> 
     <script>
-      var elem = document.getElementById('bg');
-              console.log(elem);
-      var ws = new WebSocket('ws://localhost:8081/jenkins');
-      ws.onmessage = function(msg) {
-          eval('var obj = ' + msg.data);
+      $(function(){
+        function show(obj){
+          var elem = $('#bg');
           if(obj.result == 'SUCCESS'){
-              elem.bgColor = 'green';
+            elem.css('background-color', 'green');
+          }else if(obj.result == 'UNSTABLE'){
+            elem.css('background-color', 'yellow');
           }else{
-              elem.bgColor = 'red';
+            elem.css('background-color', 'red');
           }
-      };
+        }
+        var project = window.location.search.substring(1) || 'test';
+        var ws = new WebSocket('ws://localhost:8081/jenkins');
+        ws.onmessage = function(msg) {
+          eval('var obj = ' + msg.data);
+          if(obj.project != project) return;
+          show(obj);
+        };
+
+        $.getJSON('http://localhost/jenkins/job/' + project + '/lastBuild/api/json', 
+                show);
+      });
     </script>
-  </body>
+  </head>
+  <body id="bg"></body>
 </html>
