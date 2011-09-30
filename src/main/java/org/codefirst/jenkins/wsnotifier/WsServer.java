@@ -67,6 +67,13 @@ public class WsServer implements WebSocketHandler {
 
     }
 
+    public void onPong(WebSocketConnection connection, String message) {
+    }
+
+
     public void onMessage(WebSocketConnection connection, String message) {
+    }
+
+    public void onMessage(WebSocketConnection connection, byte[] message) {
     }
 }

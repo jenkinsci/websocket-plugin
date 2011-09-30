@@ -31,7 +31,7 @@
     <dependency>
       <groupId>org.webbitserver</groupId>
       <artifactId>webbit</artifactId>
-      <version>0.1.13</version>
+      <version>0.2.0</version>
     </dependency>
   </dependencies>
 
