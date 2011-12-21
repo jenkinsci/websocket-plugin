@@ -8,7 +8,7 @@
 
   <groupId>org.codefirst.jenkins.wsnotifier</groupId>
   <artifactId>websocket</artifactId>
-  <version>1.0.3-SNAPSHOT</version>
+  <version>1.0.3</version>
   <name>Jenkins Websocket Notifier</name>
   <packaging>hpi</packaging>
 
