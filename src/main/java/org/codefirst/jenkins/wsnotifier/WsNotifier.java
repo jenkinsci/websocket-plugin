@@ -37,6 +37,11 @@ public class WsNotifier extends Notifier {
         private int port = 8081;
 
         public int port(){ return port; }
+
+        public DescriptorImpl() {
+            load();
+        }
+
         public boolean isApplicable(Class<? extends AbstractProject> aClass) {
             // Indicates that this builder can be used with all kinds of project types
             return true;
