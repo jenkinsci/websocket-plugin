@@ -25,18 +25,18 @@ public class WsServer implements WebSocketHandler {
     }
 
     synchronized public static void reset(int port) {
-            System.out.println("stopping web server");
-            if(webServer != null){
-                for(WebSocketConnection con : connections){
-                    con.close();
-                }
-                connections.clear();
-                webServer.stop();
+        System.out.println("stopping web server");
+        if(webServer != null){
+            for(WebSocketConnection con : connections){
+                con.close();
             }
-            System.out.println("start websocket server at " + port);
-            webServer = WebServers.createWebServer(port)
-                .add("/jenkins", new WsServer());
-            webServer.start();
+            connections.clear();
+            webServer.stop();
+        }
+        System.out.println("start websocket server at " + port);
+        webServer = WebServers.createWebServer(port)
+            .add("/jenkins", new WsServer());
+        webServer.start();
     }
     static public void send(AbstractBuild build){
         String json = new JSONObject()
