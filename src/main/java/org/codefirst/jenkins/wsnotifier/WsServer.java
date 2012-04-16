@@ -38,6 +38,7 @@ public class WsServer implements WebSocketHandler {
             .add("/jenkins", new WsServer());
         webServer.start();
     }
+
     static public void send(AbstractBuild build){
         String json = new JSONObject()
             .element("project", build.getProject().getName())
@@ -60,10 +61,6 @@ public class WsServer implements WebSocketHandler {
         connections.remove(connection);
 
     }
-
-    public void onPong(WebSocketConnection connection, String message) {
-    }
-
 
     public void onMessage(WebSocketConnection connection, String message) {
     }
