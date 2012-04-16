@@ -3,8 +3,6 @@ package org.codefirst.jenkins.wsnotifier;
 import hudson.init.Initializer;
 import hudson.init.InitMilestone;
 import hudson.model.AbstractBuild;
-import hudson.model.Descriptor;
-import java.io.IOException;
 import org.webbitserver.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import net.sf.json.JSONObject;
@@ -27,7 +25,6 @@ public class WsServer implements WebSocketHandler {
     }
 
     synchronized public static void reset(int port) {
-        try {
             System.out.println("stopping web server");
             if(webServer != null){
                 for(WebSocketConnection con : connections){
@@ -38,11 +35,8 @@ public class WsServer implements WebSocketHandler {
             }
             System.out.println("start websocket server at " + port);
             webServer = WebServers.createWebServer(port)
-                .add("/jenkins", new WsServer())
-                .start();
-        } catch( IOException ex){
-            throw new RuntimeException(ex);
-        }
+                .add("/jenkins", new WsServer());
+            webServer.start();
     }
     static public void send(AbstractBuild build){
         String json = new JSONObject()
@@ -75,5 +69,11 @@ public class WsServer implements WebSocketHandler {
     }
 
     public void onMessage(WebSocketConnection connection, byte[] message) {
+    }
+
+    public void onPing(WebSocketConnection connection, byte[] message) throws Throwable {
+    }
+
+    public void onPong(WebSocketConnection connection, byte[] message) throws Throwable {
     }
 }
