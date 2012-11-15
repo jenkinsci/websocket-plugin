@@ -13,6 +13,18 @@ public class WsServer implements WebSocketHandler {
     private static CopyOnWriteArrayList<WebSocketConnection> connections =
         new CopyOnWriteArrayList<WebSocketConnection>();
 
+    private static Thread pingTimer = new Thread(){
+    	public void run(){
+    		while (true) {
+	    		try {
+					Thread.sleep(20000);
+		    		WsServer.ping();
+				} catch (InterruptedException e) {
+				}
+    		}
+    	}
+    };
+    
     @Initializer(before=InitMilestone.COMPLETED)
     public static void init() {
         WsNotifier.DescriptorImpl desc =
@@ -22,6 +34,7 @@ public class WsServer implements WebSocketHandler {
         }else{
             reset(8081);
         }
+        pingTimer.start();
     }
 
     synchronized public static void reset(int port) {
@@ -49,6 +62,14 @@ public class WsServer implements WebSocketHandler {
         for(WebSocketConnection con : connections){
             con.send(json);
         }
+        
+        pingTimer.interrupt();
+    }
+    
+    static private void ping(){
+    	for (WebSocketConnection con : connections) {
+    		con.ping("ping".getBytes());
+    	}
     }
 
     public void onOpen(WebSocketConnection connection) {
@@ -69,6 +90,7 @@ public class WsServer implements WebSocketHandler {
     }
 
     public void onPing(WebSocketConnection connection, byte[] message) throws Throwable {
+    	connection.pong(message);
     }
 
     public void onPong(WebSocketConnection connection, byte[] message) throws Throwable {
