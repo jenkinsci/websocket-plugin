@@ -35,8 +35,11 @@ public class WsNotifier extends Notifier {
     @Extension // This indicates to Jenkins that this is an implementation of an extension point.
     public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
         private int port = 8081;
+        private int pingInterval = 20;
 
         public int port(){ return port; }
+        public boolean keepalive(){ return pingInterval >= 0; }
+        public int pingInterval(){ if (keepalive()) return pingInterval; else return 20; }
 
         public DescriptorImpl() {
             load();
@@ -63,7 +66,14 @@ public class WsNotifier extends Notifier {
 
         @Override
         public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
+        	System.out.println(formData);
             port = formData.getInt("port");
+            if (formData.has("keepalive")) {
+            	JSONObject keepalive = formData.getJSONObject("keepalive");
+                pingInterval = keepalive.getInt("pingInterval");
+            } else {
+            	pingInterval = -1;
+            }
             save();
             WsServer.reset(port);
             return super.configure(req,formData);
