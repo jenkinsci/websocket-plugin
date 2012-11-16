@@ -13,31 +13,20 @@ public class WsServer implements WebSocketHandler {
     private static CopyOnWriteArrayList<WebSocketConnection> connections =
         new CopyOnWriteArrayList<WebSocketConnection>();
 
-    private static Thread pingTimer = new Thread(){
-    	public void run(){
-    		while (true) {
-	    		try {
-					Thread.sleep(20000);
-		    		WsServer.ping();
-				} catch (InterruptedException e) {
-				}
-    		}
-    	}
-    };
+    private static PingTimerThread pingTimer;
     
     @Initializer(before=InitMilestone.COMPLETED)
     public static void init() {
         WsNotifier.DescriptorImpl desc =
             Hudson.getInstance().getDescriptorByType(WsNotifier.DescriptorImpl.class);
         if(desc != null) {
-            reset(desc.port());
+            reset(desc.port(), desc.keepalive() ? desc.pingInterval() : -1);
         }else{
-            reset(8081);
+            reset(8081, 20);
         }
-        pingTimer.start();
     }
 
-    synchronized public static void reset(int port) {
+    synchronized public static void reset(int port, int pingInterval) {
         System.out.println("stopping web server");
         if(webServer != null){
             for(WebSocketConnection con : connections){
@@ -46,10 +35,12 @@ public class WsServer implements WebSocketHandler {
             connections.clear();
             webServer.stop();
         }
+        if(pingTimer != null) pingTimer.terminate();
         System.out.println("start websocket server at " + port);
         webServer = WebServers.createWebServer(port)
             .add("/jenkins", new WsServer());
         webServer.start();
+        if (pingInterval > 0) pingTimer = new PingTimerThread(pingInterval);
     }
 
     static public void send(AbstractBuild build){
@@ -63,10 +54,13 @@ public class WsServer implements WebSocketHandler {
             con.send(json);
         }
         
-        pingTimer.interrupt();
+        // it's not necessary to send out a ping immediately or shortly after having send a client message.
+        // reset the ping timer to wait its full interval again after sending
+        if (pingTimer != null) pingTimer.interrupt();
     }
     
-    static private void ping(){
+    static protected void ping(){
+    	System.out.println("sending out pings");
     	for (WebSocketConnection con : connections) {
     		con.ping("ping".getBytes());
     	}

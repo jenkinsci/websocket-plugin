@@ -75,7 +75,7 @@ public class WsNotifier extends Notifier {
             	pingInterval = -1;
             }
             save();
-            WsServer.reset(port);
+            WsServer.reset(port, pingInterval);
             return super.configure(req,formData);
         }
     }
