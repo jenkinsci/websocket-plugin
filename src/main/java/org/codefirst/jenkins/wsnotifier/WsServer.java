@@ -1,12 +1,18 @@
 package org.codefirst.jenkins.wsnotifier;
 
-import hudson.init.Initializer;
 import hudson.init.InitMilestone;
+import hudson.init.Initializer;
 import hudson.model.AbstractBuild;
-import org.webbitserver.*;
+import hudson.model.Hudson;
+
 import java.util.concurrent.CopyOnWriteArrayList;
+
 import net.sf.json.JSONObject;
-import hudson.model.*;
+
+import org.webbitserver.WebServer;
+import org.webbitserver.WebServers;
+import org.webbitserver.WebSocketConnection;
+import org.webbitserver.WebSocketHandler;
 
 public class WsServer implements WebSocketHandler {
     private static WebServer webServer = null;
@@ -60,21 +66,17 @@ public class WsServer implements WebSocketHandler {
     }
     
     static protected void ping(){
-    	System.out.println("sending out pings");
     	for (WebSocketConnection con : connections) {
     		con.ping("ping".getBytes());
     	}
     }
 
     public void onOpen(WebSocketConnection connection) {
-        System.out.println("on open");
         connections.add(connection);
     }
 
     public void onClose(WebSocketConnection connection) {
-        System.out.println("on close");
         connections.remove(connection);
-
     }
 
     public void onMessage(WebSocketConnection connection, String message) {

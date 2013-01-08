@@ -1,16 +1,24 @@
 package org.codefirst.jenkins.wsnotifier;
-import hudson.Launcher;
 import hudson.Extension;
+import hudson.Launcher;
+import hudson.model.BuildListener;
+import hudson.model.AbstractBuild;
+import hudson.model.AbstractProject;
+import hudson.tasks.BuildStepDescriptor;
+import hudson.tasks.BuildStepMonitor;
+import hudson.tasks.Notifier;
+import hudson.tasks.Publisher;
 import hudson.util.FormValidation;
-import hudson.model.*;
-import hudson.tasks.*;
-import net.sf.json.JSONObject;
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.QueryParameter;
+
+import java.io.IOException;
 
 import javax.servlet.ServletException;
-import java.io.IOException;
+
+import net.sf.json.JSONObject;
+
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.StaplerRequest;
 
 public class WsNotifier extends Notifier {
     @DataBoundConstructor
@@ -66,7 +74,6 @@ public class WsNotifier extends Notifier {
 
         @Override
         public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
-        	System.out.println(formData);
             port = formData.getInt("port");
             if (formData.has("keepalive")) {
             	JSONObject keepalive = formData.getJSONObject("keepalive");
