@@ -5,6 +5,10 @@
       description="Port number of Websocket server">
       <f:textbox default="${descriptor.port()}" />
     </f:entry>
+    <f:entry title="Use status format"
+      field="useStatusFormat">
+      <f:checkbox default="${descriptor.useStatusFormat()}" />
+    </f:entry>
     <f:optionalBlock title="Enable Websocket pings to keep connections alive" field="keepalive" checked="${descriptor.keepalive()}">
       <f:entry title="Ping interval" field="pingInterval">
         <f:textbox default="${descriptor.pingInterval()}" />
