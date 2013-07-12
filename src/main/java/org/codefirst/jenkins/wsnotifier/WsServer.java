@@ -20,19 +20,20 @@ public class WsServer implements WebSocketHandler {
         new CopyOnWriteArrayList<WebSocketConnection>();
 
     private static PingTimerThread pingTimer;
+    private static boolean useStatusFormat;
     
     @Initializer(before=InitMilestone.COMPLETED)
     public static void init() {
         WsNotifier.DescriptorImpl desc =
             Hudson.getInstance().getDescriptorByType(WsNotifier.DescriptorImpl.class);
         if(desc != null) {
-            reset(desc.port(), desc.keepalive() ? desc.pingInterval() : -1);
+            reset(desc.port(), desc.keepalive() ? desc.pingInterval() : -1, desc.useStatusFormat());
         }else{
-            reset(8081, 20);
+            reset(8081, 20, false);
         }
     }
 
-    synchronized public static void reset(int port, int pingInterval) {
+    synchronized public static void reset(int port, int pingInterval, boolean useStatusFormat) {
         System.out.println("stopping web server");
         if(webServer != null){
             for(WebSocketConnection con : connections){
@@ -42,6 +43,7 @@ public class WsServer implements WebSocketHandler {
             webServer.stop();
         }
         if(pingTimer != null) pingTimer.terminate();
+        WsServer.useStatusFormat = useStatusFormat;
         System.out.println("start websocket server at " + port);
         webServer = WebServers.createWebServer(port)
             .add("/jenkins", new WsServer());
@@ -50,10 +52,19 @@ public class WsServer implements WebSocketHandler {
     }
 
     static public void send(AbstractBuild build){
+        send(build, null);
+    }
+
+    static public void send(AbstractBuild build, String result){
+        String statusName = useStatusFormat ? "status" : "result";
+        if (result == null) {
+            if (!useStatusFormat) return;
+            result = build.getResult().toString();
+        }
         String json = new JSONObject()
             .element("project", build.getProject().getName())
             .element("number" , new Integer(build.getNumber()))
-            .element("result" , build.getResult().toString())
+            .element(statusName , result)
             .toString();
 
         for(WebSocketConnection con : connections){
