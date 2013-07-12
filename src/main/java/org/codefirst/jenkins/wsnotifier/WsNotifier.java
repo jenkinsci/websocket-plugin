@@ -1,6 +1,7 @@
 package org.codefirst.jenkins.wsnotifier;
 import hudson.Extension;
 import hudson.Launcher;
+import hudson.model.Build;
 import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
@@ -21,13 +22,25 @@ import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
 public class WsNotifier extends Notifier {
+
+    private static final String START = "START";
+
     @DataBoundConstructor
     public WsNotifier() {
     }
 
     @Override
     public boolean perform(AbstractBuild build, Launcher launcher, BuildListener listener) {
-        WsServer.send(build);
+        WsServer.send(build, getDescriptor().useStatusFormat());
+        return true;
+    }
+
+    @Override
+    public boolean prebuild(Build build, BuildListener listener) {
+        boolean useStatusFormat = getDescriptor().useStatusFormat();
+        if (useStatusFormat){
+            WsServer.send(build, START, useStatusFormat);
+        }
         return true;
     }
 
@@ -43,9 +56,11 @@ public class WsNotifier extends Notifier {
     @Extension // This indicates to Jenkins that this is an implementation of an extension point.
     public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
         private int port = 8081;
+        private boolean useStatusFormat = false;
         private int pingInterval = 20;
 
         public int port(){ return port; }
+        public boolean useStatusFormat(){ return useStatusFormat; }
         public boolean keepalive(){ return pingInterval >= 0; }
         public int pingInterval(){ if (keepalive()) return pingInterval; else return 20; }
 
@@ -75,6 +90,7 @@ public class WsNotifier extends Notifier {
         @Override
         public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
             port = formData.getInt("port");
+            useStatusFormat = formData.getBoolean("useStatusFormat");
             if (formData.has("keepalive")) {
             	JSONObject keepalive = formData.getJSONObject("keepalive");
                 pingInterval = keepalive.getInt("pingInterval");

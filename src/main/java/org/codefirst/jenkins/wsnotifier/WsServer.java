@@ -49,11 +49,19 @@ public class WsServer implements WebSocketHandler {
         if (pingInterval > 0) pingTimer = new PingTimerThread(pingInterval);
     }
 
-    static public void send(AbstractBuild build){
+    static public void send(AbstractBuild build, boolean useStatusFormat){
+        send(build, null, useStatusFormat);
+    }
+
+    static public void send(AbstractBuild build, String result, boolean useStatusFormat){
+        String statusName = useStatusFormat ? "status" : "result";
+        if (result == null){
+            result = build.getResult().toString();
+        }
         String json = new JSONObject()
             .element("project", build.getProject().getName())
             .element("number" , new Integer(build.getNumber()))
-            .element("result" , build.getResult().toString())
+            .element(statusName , result)
             .toString();
 
         for(WebSocketConnection con : connections){
