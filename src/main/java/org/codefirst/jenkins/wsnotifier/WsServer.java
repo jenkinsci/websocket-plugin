@@ -54,18 +54,21 @@ public class WsServer implements WebSocketHandler {
     }
 
     static public void send(AbstractBuild build, String result, boolean useStatusFormat){
-        String statusName = useStatusFormat ? "status" : "result";
         if (result == null){
             result = build.getResult().toString();
         }
-        String json = new JSONObject()
+        JSONObject json = new JSONObject()
             .element("project", build.getProject().getName())
             .element("number" , new Integer(build.getNumber()))
-            .element(statusName , result)
-            .toString();
+            .element("status", result);
+
+        // for backward compatibilty
+        try{
+            json.element("result", build.getResult().toString());
+        }catch(Exception e) {}
 
         for(WebSocketConnection con : connections){
-            con.send(json);
+            con.send(json.toString());
         }
         
         // it's not necessary to send out a ping immediately or shortly after having send a client message.
